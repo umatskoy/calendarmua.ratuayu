@@ -598,12 +598,17 @@
       const data = await res.json();
       if (data.success) {
         allBookings = (data.bookings || []).map(normalizeBooking);
-        allBlokir   = (data.blokir  || []).map(b => ({
-          tanggal: b.tanggal ? String(b.tanggal).trim() : '',
-          jenis:   b.jenis   || '',
-          label:   b.label   || '',
-          warna:   b.warna   || '#cccccc',
-        })).filter(b => b.tanggal);
+        allBlokir   = (data.blokir  || []).map(b => {
+          const raw = b.tanggal ? String(b.tanggal).trim() : '';
+          const parsed = parseDate(raw);
+          const tglKey = parsed ? dateKey(parsed) : '';
+          return {
+            tanggal: tglKey,
+            jenis:   b.jenis || '',
+            label:   b.label || '',
+            warna:   b.warna || '#cccccc',
+          };
+        }).filter(b => b.tanggal);
       }
     } catch(e) {
       console.warn('Gagal fetch data:', e);
@@ -638,7 +643,15 @@
   function blokirByDate() {
     const map = {};
     allBlokir.forEach(b => {
-      if (b.tanggal) map[b.tanggal] = b;
+      if (!b.tanggal) return;
+      // Pastikan key selalu format YYYY-MM-DD
+      let key = b.tanggal;
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(key)) {
+        const parsed = parseDate(key);
+        if (!parsed) return;
+        key = dateKey(parsed);
+      }
+      map[key] = b;
     });
     return map;
   }
