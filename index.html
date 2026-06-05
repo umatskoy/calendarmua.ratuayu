@@ -585,6 +585,9 @@
       lokasi:        pick(raw, 'lokasi','location','Lokasi'),
       mua_bertugas:  pick(raw, 'mua_bertugas','mua bertugas','MUA Bertugas','mua','MUA'),
       mua_bertugas_2:pick(raw, 'mua_bertugas_2','mua bertugas 2','MUA Bertugas 2','mua2'),
+      mua_bertugas_3:pick(raw, 'mua_bertugas_3','mua bertugas 3','MUA Bertugas 3','mua3'),
+      mua_bertugas_4:pick(raw, 'mua_bertugas_4','mua bertugas 4','MUA Bertugas 4','mua4'),
+      mua_bertugas_5:pick(raw, 'mua_bertugas_5','mua bertugas 5','MUA Bertugas 5','mua5'),
       hijab_stylist: pick(raw, 'hijab_stylist','hijab stylist','Hijab Stylist','hijab'),
       hair_stylist:  pick(raw, 'hair_stylist','hair stylist','Hair Stylist','hair'),
     };
@@ -732,7 +735,7 @@
         chipsHtml = '<div class="cal-dots">'
           + shown.map(b => {
               const jam = fmtTime(b.jam_selesai);
-              const tim = [b.mua_bertugas, b.mua_bertugas_2, b.hijab_stylist, b.hair_stylist]
+              const tim = [b.mua_bertugas, b.mua_bertugas_2, b.mua_bertugas_3, b.mua_bertugas_4, b.mua_bertugas_5, b.hijab_stylist, b.hair_stylist]
                 .filter(Boolean);
               const timLabel = tim.length > 0 ? tim.join(', ') : 'Booking';
               const chipLabel = jam ? jam + ' · ' + timLabel : timLabel;
@@ -794,7 +797,7 @@
       : null;
 
     // Tim
-    const muaList   = [b.mua_bertugas, b.mua_bertugas_2].filter(Boolean);
+    const muaList   = [b.mua_bertugas, b.mua_bertugas_2, b.mua_bertugas_3, b.mua_bertugas_4, b.mua_bertugas_5].filter(Boolean);
     const hijab     = b.hijab_stylist || null;
     const hair      = b.hair_stylist  || null;
 
