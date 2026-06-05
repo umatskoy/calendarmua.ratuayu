@@ -674,7 +674,7 @@
       if (isSun)    classes += ' is-sun';
       if (isSat)    classes += ' is-sat';
 
-      // Chips: show max 2, then "+N lagi"
+      // Chips: tampilkan nama tim per booking, max 2 booking, sisanya "+N lagi"
       const MAX_CHIPS = 2;
       let chipsHtml = '';
       if (hasBk) {
@@ -683,8 +683,11 @@
         chipsHtml = '<div class="cal-dots">'
           + shown.map(b => {
               const jam = fmtTime(b.jam_selesai);
-              const label = jam ? jam + ' · ' + (b.paket||'').split('|')[0].split('–')[0].trim().slice(0,14) : (b.paket||'').split('|')[0].split('–')[0].trim().slice(0,16);
-              return `<div class="cal-chip">${label || 'Booking'}</div>`;
+              const tim = [b.mua_bertugas, b.mua_bertugas_2, b.hijab_stylist, b.hair_stylist]
+                .filter(Boolean);
+              const timLabel = tim.length > 0 ? tim.join(', ') : 'Booking';
+              const label = jam ? jam + ' · ' + timLabel : timLabel;
+              return `<div class="cal-chip">${label}</div>`;
             }).join('')
           + (rest > 0 ? `<div class="cal-chip more">+${rest} lagi</div>` : '')
           + '</div>';
