@@ -723,7 +723,7 @@
         const warna = blokir.warna || '#cccccc';
         blokirStyle = `style="background:${hexToRgba(warna, 0.22)};border-color:${hexToRgba(warna, 0.5)};"`;
         const blokirText = blokir.label || blokir.jenis || '●';
-        blokirHtml = `<div style="font-size:9.5px;font-weight:600;color:${warna};margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${blokirText}</div>`;
+        blokirHtml = `<div style="font-size:9.5px;font-weight:600;color:#1a1a1a;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${blokirText}</div>`;
       }
 
       // Chips: jam + tim per booking, max 2, sisanya "+N lagi"
