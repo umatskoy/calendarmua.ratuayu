@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pengaturan Kalender – Ratu Ayu MUA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --pink:         #D4537E;
+      --pink-light:   rgba(212,83,126,0.09);
+      --pink-mid:     rgba(212,83,126,0.2);
+      --text-primary: #1a1a1a;
+      --text-sec:     #6b6b6b;
+      --border:       #e8e4e1;
+      --bg:           #fff;
+      --bg-soft:      #fdf9f7;
+      --radius:       10px;
+      --danger:       #e53e3e;
+      --danger-light: rgba(229,62,62,0.08);
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg-soft);
+      color: var(--text-primary);
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    .page-header {
+      background: var(--bg);
+      border-bottom: 0.5px solid var(--border);
+      padding: 18px 24px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .page-header h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-weight: 300;
+      font-style: italic;
+    }
+    .page-header p { font-size: 12px; color: var(--text-sec); margin-top: 2px; }
+
+    /* ── LAYOUT ── */
+    .page-body {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 28px 16px 48px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--bg);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .card-head {
+      padding: 16px 20px 14px;
+      border-bottom: 0.5px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .card-head h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .card-head p { font-size: 12px; color: var(--text-sec); margin-top: 2px; }
+    .card-body { padding: 20px; }
+
+    /* ── FORM ── */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group.full { grid-column: 1 / -1; }
+
+    label {
+      font-size: 11.5px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--text-sec);
+    }
+
+    input[type="date"],
+    input[type="text"],
+    select {
+      padding: 10px 12px;
+      border: 0.5px solid var(--border);
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      color: var(--text-primary);
+      background: var(--bg);
+      outline: none;
+      transition: border-color 0.15s;
+      width: 100%;
+    }
+    input[type="date"]:focus,
+    input[type="text"]:focus,
+    select:focus { border-color: var(--pink); }
+
+    /* Color picker row */
+    .color-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .color-row input[type="color"] {
+      width: 44px;
+      height: 40px;
+      border: 0.5px solid var(--border);
+      border-radius: 8px;
+      padding: 3px;
+      cursor: pointer;
+      background: var(--bg);
+      flex-shrink: 0;
+    }
+    .color-row input[type="text"] {
+      flex: 1;
+      font-family: monospace;
+      font-size: 13px;
+    }
+
+    /* Color presets */
+    .color-presets {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+    .preset-swatch {
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: transform 0.1s, border-color 0.1s;
+      flex-shrink: 0;
+    }
+    .preset-swatch:hover { transform: scale(1.15); }
+    .preset-swatch.active { border-color: var(--text-primary); }
+
+    /* Preview */
+    .preview-box {
+      margin-top: 10px;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s;
+    }
+    .preview-box .dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ── BUTTONS ── */
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 11px 20px;
+      background: var(--pink);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-primary:hover { background: #bf4570; }
+    .btn-primary:disabled { background: #d4a0b4; cursor: not-allowed; }
+
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      background: transparent;
+      color: var(--text-sec);
+      border: 0.5px solid var(--border);
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    .btn-ghost:hover { background: var(--bg-soft); color: var(--text-primary); }
+
+    .btn-danger {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 10px;
+      background: transparent;
+      color: var(--danger);
+      border: 0.5px solid rgba(229,62,62,0.25);
+      border-radius: 6px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-danger:hover { background: var(--danger-light); }
+
+    .btn-edit {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 10px;
+      background: transparent;
+      color: var(--text-sec);
+      border: 0.5px solid var(--border);
+      border-radius: 6px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    .btn-edit:hover { background: var(--pink-light); color: var(--pink); border-color: var(--pink-mid); }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: #1a1a1a;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 500;
+      z-index: 9999;
+      transition: transform 0.3s cubic-bezier(.22,.68,0,1.2), opacity 0.3s;
+      opacity: 0;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    .toast.success { background: #2d8a4e; }
+    .toast.error   { background: var(--danger); }
+
+    /* ── TABLE ── */
+    .blokir-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .blokir-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 20px;
+      border-bottom: 0.5px solid var(--border);
+      transition: background 0.1s;
+    }
+    .blokir-item:last-child { border-bottom: none; }
+    .blokir-item:hover { background: var(--bg-soft); }
+
+    .blokir-swatch {
+      width: 18px; height: 18px;
+      border-radius: 5px;
+      flex-shrink: 0;
+      border: 0.5px solid rgba(0,0,0,0.1);
+    }
+    .blokir-info { flex: 1; min-width: 0; }
+    .blokir-info .tgl {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+    .blokir-info .meta {
+      font-size: 11.5px;
+      color: var(--text-sec);
+      margin-top: 1px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .blokir-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+    .empty-list {
+      padding: 32px 20px;
+      text-align: center;
+      color: var(--text-sec);
+      font-size: 13px;
+    }
+    .empty-list i { font-size: 28px; display: block; margin-bottom: 8px; opacity: 0.35; }
+
+    /* Loading skeleton */
+    .skeleton {
+      background: linear-gradient(90deg, #f0ece9 25%, #e8e4e1 50%, #f0ece9 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.2s infinite;
+      border-radius: 6px;
+      height: 14px;
+    }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+    @media (max-width: 520px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .form-group.full { grid-column: 1; }
+      .blokir-item { padding: 10px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="page-header">
+  <div>
+    <h1>Ratu Ayu MUA</h1>
+    <p>Pengaturan Penanda Kalender</p>
+  </div>
+</header>
+
+<main class="page-body">
+
+  <!-- FORM TAMBAH / EDIT -->
+  <div class="card" id="formCard">
+    <div class="card-head">
+      <div>
+        <h2 id="formTitle">Tambah Penanda</h2>
+        <p id="formSubtitle">Tandai tanggal tertentu dengan warna dan label di kalender publik</p>
+      </div>
+      <button class="btn-ghost" id="btnBatalEdit" style="display:none;" onclick="batalEdit()">
+        <i class="ti ti-x" style="font-size:13px;"></i> Batal
+      </button>
+    </div>
+    <div class="card-body">
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label for="inp-tanggal">Tanggal <span style="color:var(--pink)">*</span></label>
+          <input type="date" id="inp-tanggal" />
+        </div>
+
+        <div class="form-group">
+          <label for="inp-jenis">Jenis</label>
+          <select id="inp-jenis">
+            <option value="">— Pilih jenis —</option>
+            <option value="Libur">Libur</option>
+            <option value="Full Booked">Full Booked</option>
+            <option value="Terbatas">Terbatas</option>
+            <option value="Catatan">Catatan</option>
+            <option value="Lainnya">Lainnya</option>
+          </select>
+        </div>
+
+        <div class="form-group full">
+          <label for="inp-label">Label / Keterangan</label>
+          <input type="text" id="inp-label" placeholder="Contoh: Libur Lebaran, Tim sedang di luar kota..." maxlength="60" />
+        </div>
+
+        <div class="form-group full">
+          <label>Warna</label>
+          <div class="color-row">
+            <input type="color" id="inp-warna-picker" value="#F9A8C9" oninput="onPickerChange(this.value)" />
+            <input type="text" id="inp-warna-hex" value="#F9A8C9" placeholder="#rrggbb" maxlength="7"
+              oninput="onHexChange(this.value)" />
+          </div>
+          <!-- Preset swatches -->
+          <div class="color-presets" id="colorPresets"></div>
+          <!-- Preview -->
+          <div class="preview-box" id="previewBox">
+            <div class="dot" id="previewDot"></div>
+            <span id="previewLabel">Preview penanda</span>
+          </div>
+        </div>
+
+      </div>
+
+      <div style="display:flex; gap:10px; margin-top:18px; flex-wrap:wrap;">
+        <button class="btn-primary" id="btnSimpan" onclick="simpanBlokir()">
+          <i class="ti ti-check" style="font-size:15px;"></i>
+          <span id="btnSimpanLabel">Simpan Penanda</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DAFTAR PENANDA -->
+  <div class="card">
+    <div class="card-head">
+      <div>
+        <h2>Daftar Penanda</h2>
+        <p id="listCount">Memuat data...</p>
+      </div>
+      <button class="btn-ghost" onclick="loadBlokir()">
+        <i class="ti ti-refresh" style="font-size:13px;"></i> Refresh
+      </button>
+    </div>
+    <div id="blokirList" class="blokir-list">
+      <div class="empty-list">
+        <div class="skeleton" style="width:60%;margin:0 auto 8px;"></div>
+        <div class="skeleton" style="width:40%;margin:0 auto;"></div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+  const GAS_URL = 'https://script.google.com/macros/s/AKfycbzW4Rs9Uc7psMTYJgKSRXnE_lWb8rKtJ1IxV4z_-D9R5tiZ4OoAYDAsIRxyd1hOc7NSAQ/exec';
+
+  // State
+  let allBlokir = [];
+  let editRowIndex = null;
+
+  // ── COLOR PRESETS ──
+  const PRESETS = [
+    '#FECDD3', // merah muda
+    '#FCA5A5', // merah
+    '#FED7AA', // oranye
+    '#FEF08A', // kuning
+    '#BBF7D0', // hijau muda
+    '#6EE7B7', // hijau
+    '#BAE6FD', // biru muda
+    '#A5B4FC', // ungu muda
+    '#F9A8D4', // pink
+    '#D4537E', // pink tua
+    '#94A3B8', // abu
+    '#1E293B', // hitam
+  ];
+
+  function initPresets() {
+    const container = document.getElementById('colorPresets');
+    container.innerHTML = PRESETS.map(c =>
+      `<div class="preset-swatch" style="background:${c};" title="${c}" onclick="pilihPreset('${c}')"></div>`
+    ).join('');
+  }
+
+  function pilihPreset(hex) {
+    setWarna(hex);
+    document.querySelectorAll('.preset-swatch').forEach(s => {
+      s.classList.toggle('active', s.title === hex);
+    });
+  }
+
+  function setWarna(hex) {
+    document.getElementById('inp-warna-picker').value = hex;
+    document.getElementById('inp-warna-hex').value = hex;
+    updatePreview();
+  }
+
+  function onPickerChange(val) {
+    document.getElementById('inp-warna-hex').value = val;
+    updatePreview();
+    document.querySelectorAll('.preset-swatch').forEach(s => s.classList.remove('active'));
+  }
+
+  function onHexChange(val) {
+    if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
+      document.getElementById('inp-warna-picker').value = val;
+      updatePreview();
+    }
+  }
+
+  function updatePreview() {
+    const warna  = document.getElementById('inp-warna-hex').value || '#F9A8C9';
+    const label  = document.getElementById('inp-label').value || 'Preview penanda';
+    const dot    = document.getElementById('previewDot');
+    const box    = document.getElementById('previewBox');
+    const lbl    = document.getElementById('previewLabel');
+    dot.style.background = warna;
+    box.style.background = hexToRgba(warna, 0.18);
+    lbl.textContent = label || 'Preview penanda';
+  }
+
+  function hexToRgba(hex, alpha) {
+    const r = parseInt(hex.slice(1,3),16);
+    const g = parseInt(hex.slice(3,5),16);
+    const b = parseInt(hex.slice(5,7),16);
+    return `rgba(${r},${g},${b},${alpha})`;
+  }
+
+  // ── LOAD DATA ──
+  async function loadBlokir() {
+    document.getElementById('listCount').textContent = 'Memuat...';
+    document.getElementById('blokirList').innerHTML = `
+      <div class="empty-list">
+        <div class="skeleton" style="width:70%;margin:0 auto 8px;"></div>
+        <div class="skeleton" style="width:50%;margin:0 auto;"></div>
+      </div>`;
+    try {
+      const res  = await fetch(GAS_URL + '?action=getBlokir');
+      const data = await res.json();
+      if (data.success) {
+        allBlokir = data.blokir || [];
+        renderList();
+      } else {
+        showToast('Gagal memuat data: ' + data.message, 'error');
+      }
+    } catch(e) {
+      showToast('Error koneksi: ' + e.message, 'error');
+      document.getElementById('blokirList').innerHTML = '<div class="empty-list"><i class="ti ti-wifi-off"></i><p>Gagal terhubung ke server</p></div>';
+    }
+  }
+
+  // ── RENDER LIST ──
+  function renderList() {
+    const container = document.getElementById('blokirList');
+    const count     = document.getElementById('listCount');
+
+    if (allBlokir.length === 0) {
+      count.textContent = 'Belum ada penanda';
+      container.innerHTML = '<div class="empty-list"><i class="ti ti-calendar-off"></i><p>Belum ada tanggal yang ditandai</p></div>';
+      return;
+    }
+
+    // Sort by tanggal
+    const sorted = [...allBlokir].sort((a,b) => a.tanggal.localeCompare(b.tanggal));
+    count.textContent = sorted.length + ' penanda';
+
+    container.innerHTML = sorted.map(b => {
+      const tgl = formatTanggal(b.tanggal);
+      const metaParts = [b.jenis, b.label].filter(Boolean);
+      const meta = metaParts.join(' · ') || '—';
+      return `<div class="blokir-item">
+        <div class="blokir-swatch" style="background:${b.warna || '#ccc'};"></div>
+        <div class="blokir-info">
+          <div class="tgl">${tgl}</div>
+          <div class="meta">${meta}</div>
+        </div>
+        <div class="blokir-actions">
+          <button class="btn-edit" onclick="mulaiEdit(${b._rowIndex})">
+            <i class="ti ti-pencil" style="font-size:12px;"></i> Edit
+          </button>
+          <button class="btn-danger" onclick="hapusBlokir(${b._rowIndex})">
+            <i class="ti ti-trash" style="font-size:12px;"></i>
+          </button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function formatTanggal(str) {
+    if (!str) return '—';
+    const d = new Date(str + 'T00:00:00');
+    if (isNaN(d)) return str;
+    return d.toLocaleDateString('id-ID', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+  }
+
+  // ── SIMPAN (ADD / UPDATE) ──
+  async function simpanBlokir() {
+    const tanggal = document.getElementById('inp-tanggal').value.trim();
+    const jenis   = document.getElementById('inp-jenis').value.trim();
+    const label   = document.getElementById('inp-label').value.trim();
+    const warna   = document.getElementById('inp-warna-hex').value.trim() || '#cccccc';
+
+    if (!tanggal) { showToast('Tanggal wajib diisi', 'error'); return; }
+
+    const btn = document.getElementById('btnSimpan');
+    btn.disabled = true;
+    document.getElementById('btnSimpanLabel').textContent = 'Menyimpan...';
+
+    const isEdit = editRowIndex !== null;
+    const params = new URLSearchParams({
+      action: isEdit ? 'updateBlokir' : 'addBlokir',
+      tanggal, jenis, label, warna,
+      ...(isEdit ? { rowIndex: editRowIndex } : {})
+    });
+
+    try {
+      const res  = await fetch(GAS_URL + '?' + params.toString());
+      const data = await res.json();
+      if (data.success) {
+        showToast(isEdit ? 'Penanda diperbarui ✓' : 'Penanda ditambahkan ✓', 'success');
+        resetForm();
+        await loadBlokir();
+      } else {
+        showToast('Gagal: ' + data.message, 'error');
+      }
+    } catch(e) {
+      showToast('Error: ' + e.message, 'error');
+    } finally {
+      btn.disabled = false;
+      document.getElementById('btnSimpanLabel').textContent = isEdit ? 'Perbarui Penanda' : 'Simpan Penanda';
+    }
+  }
+
+  // ── EDIT ──
+  function mulaiEdit(rowIndex) {
+    const b = allBlokir.find(x => x._rowIndex === rowIndex);
+    if (!b) return;
+    editRowIndex = rowIndex;
+
+    document.getElementById('inp-tanggal').value = b.tanggal;
+    document.getElementById('inp-jenis').value   = b.jenis || '';
+    document.getElementById('inp-label').value   = b.label || '';
+    setWarna(b.warna || '#F9A8C9');
+
+    document.getElementById('formTitle').textContent    = 'Edit Penanda';
+    document.getElementById('formSubtitle').textContent = formatTanggal(b.tanggal);
+    document.getElementById('btnSimpanLabel').textContent = 'Perbarui Penanda';
+    document.getElementById('btnBatalEdit').style.display = 'inline-flex';
+
+    document.getElementById('formCard').scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+
+  function batalEdit() { resetForm(); }
+
+  function resetForm() {
+    editRowIndex = null;
+    document.getElementById('inp-tanggal').value = '';
+    document.getElementById('inp-jenis').value   = '';
+    document.getElementById('inp-label').value   = '';
+    setWarna('#F9A8C9');
+    document.getElementById('formTitle').textContent    = 'Tambah Penanda';
+    document.getElementById('formSubtitle').textContent = 'Tandai tanggal tertentu dengan warna dan label di kalender publik';
+    document.getElementById('btnSimpanLabel').textContent = 'Simpan Penanda';
+    document.getElementById('btnBatalEdit').style.display = 'none';
+    document.querySelectorAll('.preset-swatch').forEach(s => s.classList.remove('active'));
+  }
+
+  // ── HAPUS ──
+  async function hapusBlokir(rowIndex) {
+    const b = allBlokir.find(x => x._rowIndex === rowIndex);
+    if (!b) return;
+    const konfirmasi = confirm(`Hapus penanda untuk ${formatTanggal(b.tanggal)}?`);
+    if (!konfirmasi) return;
+
+    try {
+      const params = new URLSearchParams({ action: 'deleteBlokir', rowIndex });
+      const res  = await fetch(GAS_URL + '?' + params.toString());
+      const data = await res.json();
+      if (data.success) {
+        showToast('Penanda dihapus', 'success');
+        await loadBlokir();
+      } else {
+        showToast('Gagal hapus: ' + data.message, 'error');
+      }
+    } catch(e) {
+      showToast('Error: ' + e.message, 'error');
+    }
+  }
+
+  // ── TOAST ──
+  let toastTimer;
+  function showToast(msg, type = '') {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = 'toast show ' + type;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { el.className = 'toast'; }, 3000);
+  }
+
+  // ── Live preview on label input ──
+  document.getElementById('inp-label').addEventListener('input', updatePreview);
+
+  // ── INIT ──
+  initPresets();
+  updatePreview();
+  loadBlokir();
+</script>
+</body>
+</html>
