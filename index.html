@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kalender Jadwal – Ratu Ayu MUA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --pink:          #D4537E;
+      --pink-light:    rgba(212,83,126,0.09);
+      --pink-mid:      rgba(212,83,126,0.18);
+      --text-primary:  #1a1a1a;
+      --text-secondary:#6b6b6b;
+      --border:        #e8e4e1;
+      --bg:            #fff;
+      --bg-soft:       #fdf9f7;
+      --radius:        12px;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg-soft);
+      color: var(--text-primary);
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    .cal-header {
+      background: var(--bg);
+      border-bottom: 0.5px solid var(--border);
+      padding: 18px 24px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .cal-brand h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-weight: 300;
+      font-style: italic;
+      color: var(--text-primary);
+      line-height: 1.2;
+    }
+    .cal-brand p {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+      letter-spacing: 0.04em;
+    }
+    .badge-readonly {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--pink-light);
+      color: var(--pink);
+      border: 0.5px solid var(--pink-mid);
+      border-radius: 20px;
+      padding: 4px 10px;
+      font-size: 11px;
+      font-weight: 500;
+      flex-shrink: 0;
+    }
+
+    /* ── MAIN LAYOUT ── */
+    .cal-wrap {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    /* ── MONTH NAV ── */
+    .month-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      gap: 12px;
+    }
+    .month-nav h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 26px;
+      font-weight: 400;
+      color: var(--text-primary);
+      text-align: center;
+      flex: 1;
+    }
+    .btn-nav {
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      border: 0.5px solid var(--border);
+      background: var(--bg);
+      color: var(--text-primary);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+      transition: background 0.15s, border-color 0.15s;
+      flex-shrink: 0;
+    }
+    .btn-nav:hover { background: var(--pink-light); border-color: var(--pink-mid); color: var(--pink); }
+    .btn-today {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px; font-weight: 500;
+      padding: 6px 14px;
+      border-radius: 20px;
+      border: 0.5px solid var(--border);
+      background: var(--bg);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: background 0.15s;
+      flex-shrink: 0;
+    }
+    .btn-today:hover { background: var(--pink-light); border-color: var(--pink-mid); color: var(--pink); }
+
+    /* ── LOADING ── */
+    .loading-bar {
+      height: 3px;
+      background: linear-gradient(90deg, var(--pink) 0%, rgba(212,83,126,0.2) 100%);
+      border-radius: 2px;
+      margin-bottom: 16px;
+      animation: shimmer 1.2s infinite;
+      background-size: 200% 100%;
+    }
+    @keyframes shimmer {
+      0%   { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* ── CALENDAR GRID ── */
+    .cal-grid-header {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+      margin-bottom: 4px;
+    }
+    .cal-dow {
+      text-align: center;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      padding: 6px 0;
+    }
+    .cal-dow:first-child { color: #c0392b; }  /* Minggu */
+    .cal-dow:last-child  { color: #2563eb; }  /* Sabtu */
+
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+    }
+
+    .cal-cell {
+      background: var(--bg);
+      border: 0.5px solid var(--border);
+      border-radius: 8px;
+      min-height: 80px;
+      padding: 6px 7px;
+      cursor: default;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      position: relative;
+      overflow: hidden;
+    }
+    .cal-cell.other-month { background: transparent; border-color: transparent; }
+    .cal-cell.other-month .cal-date { color: #ccc; }
+    .cal-cell.today { border-color: var(--pink); border-width: 1.5px; }
+    .cal-cell.has-booking { cursor: pointer; }
+    .cal-cell.has-booking:hover { border-color: var(--pink); box-shadow: 0 2px 10px rgba(212,83,126,0.12); }
+
+    .cal-date {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+      line-height: 1;
+    }
+    .cal-cell.today .cal-date {
+      color: var(--bg);
+      background: var(--pink);
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px;
+    }
+    /* Sunday/Saturday coloring */
+    .cal-cell.is-sun .cal-date { color: #c0392b; }
+    .cal-cell.is-sat .cal-date { color: #2563eb; }
+    .cal-cell.today .cal-date  { color: #fff; } /* override for today */
+
+    /* Booking dots / chips inside cell */
+    .cal-dots {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .cal-chip {
+      font-size: 10px;
+      line-height: 1.3;
+      padding: 2px 5px;
+      border-radius: 4px;
+      background: var(--pink-light);
+      color: var(--pink);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-weight: 500;
+    }
+    .cal-chip.more {
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 10px;
+      padding: 1px 3px;
+    }
+
+    /* ── DETAIL PANEL (slide up from bottom on mobile, side panel on desktop) ── */
+    .detail-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 500;
+      background: rgba(0,0,0,0.35);
+      align-items: flex-end;
+      justify-content: center;
+      padding: 0;
+    }
+    .detail-overlay.open { display: flex; }
+    @media (min-width: 640px) {
+      .detail-overlay { align-items: center; padding: 1.5rem; }
+    }
+
+    .detail-sheet {
+      background: var(--bg);
+      width: 100%;
+      max-width: 480px;
+      max-height: 85vh;
+      border-radius: 20px 20px 16px 16px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+      animation: slideUp 0.28s cubic-bezier(.22,.68,0,1.2) both;
+    }
+    @media (min-width: 640px) {
+      .detail-sheet {
+        border-radius: 16px;
+        animation: fadeScale 0.22s ease both;
+      }
+    }
+    @keyframes slideUp  { from { transform: translateY(60px); opacity:0; } to { transform: translateY(0); opacity:1; } }
+    @keyframes fadeScale { from { transform: scale(.97); opacity:0; } to { transform: scale(1); opacity:1; } }
+
+    .detail-head {
+      padding: 18px 20px 14px;
+      border-bottom: 0.5px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .detail-head h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .detail-head p { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+    .btn-close-detail {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      border: none;
+      background: var(--bg-soft);
+      color: var(--text-secondary);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .btn-close-detail:hover { background: var(--pink-light); color: var(--pink); }
+
+    .detail-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 20px 20px;
+      -webkit-overflow-scrolling: touch;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .booking-card {
+      border: 0.5px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .booking-card-head {
+      background: var(--pink-light);
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .booking-card-head .jam {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--pink);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .booking-card-head .jam i { font-size: 14px; }
+    .booking-card-head .lokasi-short {
+      font-size: 11px;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 200px;
+    }
+
+    .booking-card-body {
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .detail-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .detail-row i {
+      font-size: 15px;
+      color: var(--text-secondary);
+      margin-top: 1px;
+      flex-shrink: 0;
+      width: 16px;
+    }
+    .detail-row .val {
+      font-size: 13px;
+      color: var(--text-primary);
+      line-height: 1.5;
+      flex: 1;
+    }
+    .detail-row .val.muted { color: var(--text-secondary); font-style: italic; }
+
+    .tag-list { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 2px; }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 9px;
+      border-radius: 5px;
+      font-size: 11.5px;
+      font-weight: 500;
+      line-height: 1.3;
+    }
+    .tag-pink   { background: var(--pink-light); color: var(--pink); border: 0.5px solid var(--pink-mid); }
+    .tag-green  { background: #f0fdf4; color: #16a34a; border: 0.5px solid rgba(22,163,74,0.25); }
+    .tag-blue   { background: #eff6ff; color: #2563eb; border: 0.5px solid rgba(37,99,235,0.25); }
+    .tag-gray   { background: var(--bg-soft); color: var(--text-secondary); border: 0.5px solid var(--border); }
+
+    .section-mini-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 3px;
+    }
+
+    /* ── LEGEND & INFO ── */
+    .cal-legend {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-top: 14px;
+      padding: 10px 14px;
+      background: var(--bg);
+      border: 0.5px solid var(--border);
+      border-radius: 8px;
+      flex-wrap: wrap;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11.5px;
+      color: var(--text-secondary);
+    }
+    .legend-dot {
+      width: 10px; height: 10px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+
+    /* ── EMPTY STATE ── */
+    .empty-detail {
+      text-align: center;
+      padding: 32px 20px;
+      color: var(--text-secondary);
+      font-size: 13px;
+    }
+    .empty-detail i { font-size: 32px; display: block; margin-bottom: 8px; opacity: 0.4; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 520px) {
+      .cal-cell { min-height: 56px; padding: 4px 5px; }
+      .cal-chip { font-size: 9px; }
+      .cal-date { font-size: 11px; }
+      .month-nav h2 { font-size: 20px; }
+      .cal-header { padding: 14px 16px 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="cal-header">
+  <div class="cal-brand">
+    <h1>Ratu Ayu MUA</h1>
+    <p>Jadwal Booking Make Up Artist</p>
+  </div>
+  <span class="badge-readonly">
+    <i class="ti ti-eye" style="font-size:13px;"></i>
+    Lihat Saja
+  </span>
+</header>
+
+<!-- MAIN -->
+<main class="cal-wrap">
+
+  <!-- Month navigation -->
+  <div class="month-nav">
+    <button class="btn-nav" id="btnPrev" title="Bulan sebelumnya" onclick="changeMonth(-1)">
+      <i class="ti ti-chevron-left"></i>
+    </button>
+    <h2 id="monthLabel">—</h2>
+    <button class="btn-nav" id="btnNext" title="Bulan berikutnya" onclick="changeMonth(1)">
+      <i class="ti ti-chevron-right"></i>
+    </button>
+    <button class="btn-today" onclick="goToday()">Hari Ini</button>
+  </div>
+
+  <!-- Loading bar -->
+  <div id="loadingBar" class="loading-bar"></div>
+
+  <!-- Day-of-week header -->
+  <div class="cal-grid-header">
+    <div class="cal-dow">Min</div>
+    <div class="cal-dow">Sen</div>
+    <div class="cal-dow">Sel</div>
+    <div class="cal-dow">Rab</div>
+    <div class="cal-dow">Kam</div>
+    <div class="cal-dow">Jum</div>
+    <div class="cal-dow">Sab</div>
+  </div>
+
+  <!-- Calendar grid -->
+  <div class="cal-grid" id="calGrid"></div>
+
+  <!-- Legend -->
+  <div class="cal-legend">
+    <div class="legend-item">
+      <div class="legend-dot" style="background:var(--pink-light);border:0.5px solid var(--pink-mid);"></div>
+      Sudah ada booking
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:#fff;border:1.5px solid var(--pink);"></div>
+      Hari ini
+    </div>
+    <div class="legend-item" style="margin-left:auto;">
+      <i class="ti ti-info-circle" style="font-size:13px;"></i>
+      Tap tanggal untuk detail
+    </div>
+  </div>
+
+</main>
+
+<!-- DETAIL PANEL -->
+<div class="detail-overlay" id="detailOverlay">
+  <div class="detail-sheet">
+    <div class="detail-head">
+      <div>
+        <h3 id="detailDateLabel">—</h3>
+        <p id="detailCount">—</p>
+      </div>
+      <button class="btn-close-detail" onclick="closeDetail()">
+        <i class="ti ti-x"></i>
+      </button>
+    </div>
+    <div class="detail-body" id="detailBody"></div>
+  </div>
+</div>
+
+<script>
+  const GAS_URL = 'https://script.google.com/macros/s/AKfycbzW4Rs9Uc7psMTYJgKSRXnE_lWb8rKtJ1IxV4z_-D9R5tiZ4OoAYDAsIRxyd1hOc7NSAQ/exec';
+
+  let allBookings = [];
+  let currentYear, currentMonth; // 0-indexed month
+
+  /* ── INIT ── */
+  const today = new Date();
+  currentYear  = today.getFullYear();
+  currentMonth = today.getMonth();
+
+  /* ── HELPERS ── */
+  function parseDate(val) {
+    if (!val && val !== 0) return null;
+    if (typeof val === 'number') {
+      const ms = (val - 25569) * 86400 * 1000;
+      const d = new Date(ms);
+      return isNaN(d) ? null : d;
+    }
+    const s = String(val).trim();
+    if (!s) return null;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return new Date(s + 'T00:00:00');
+    if (/^\d{2}\/\d{2}\/\d{4}$/.test(s)) {
+      const [dd, mm, yyyy] = s.split('/');
+      return new Date(`${yyyy}-${mm}-${dd}T00:00:00`);
+    }
+    const d = new Date(s);
+    return isNaN(d) ? null : d;
+  }
+
+  function fmtTime(val) {
+    if (val === null || val === undefined || val === '') return null;
+    if (typeof val === 'number') {
+      const frac = val % 1;
+      const totalMin = Math.round(frac * 24 * 60);
+      const h = Math.floor(totalMin / 60);
+      const m = totalMin % 60;
+      const wibH = (h + 7) % 24;
+      return String(wibH).padStart(2,'0') + ':' + String(m).padStart(2,'0');
+    }
+    const s = String(val).trim();
+    if (/^\d{1,2}:\d{2}/.test(s)) return s.slice(0, 5);
+    if (s.includes('T')) {
+      const tp = s.split('T')[1] || '';
+      if (tp) {
+        const [hh, mm] = tp.split(':');
+        const wibH = (parseInt(hh) + 7) % 24;
+        return String(wibH).padStart(2,'0') + ':' + mm.slice(0,2);
+      }
+    }
+    return null;
+  }
+
+  function dateKey(d) {
+    // Returns "YYYY-MM-DD"
+    return d.getFullYear() + '-'
+      + String(d.getMonth()+1).padStart(2,'0') + '-'
+      + String(d.getDate()).padStart(2,'0');
+  }
+
+  function pick(raw, ...keys) {
+    const lookup = {};
+    Object.keys(raw).forEach(k => {
+      lookup[k.toLowerCase().replace(/\s+/g,'_')] = raw[k];
+      lookup[k.toLowerCase()] = raw[k];
+    });
+    for (const c of keys) {
+      const v = lookup[c.toLowerCase().replace(/\s+/g,'_')] ?? lookup[c.toLowerCase()];
+      if (v !== undefined && v !== null && v !== '') return v;
+    }
+    return '';
+  }
+
+  function normalizeBooking(raw) {
+    return {
+      tanggal:       pick(raw, 'tanggal','date','Tanggal','tgl'),
+      jam_selesai:   pick(raw, 'jam_selesai','jam selesai','Jam Selesai','jam'),
+      paket:         pick(raw, 'paket','package','Paket','pak'),
+      addon:         pick(raw, 'addon','add_on','add on','Add On','tambahan'),
+      lokasi:        pick(raw, 'lokasi','location','Lokasi'),
+      mua_bertugas:  pick(raw, 'mua_bertugas','mua bertugas','MUA Bertugas','mua','MUA'),
+      mua_bertugas_2:pick(raw, 'mua_bertugas_2','mua bertugas 2','MUA Bertugas 2','mua2'),
+      hijab_stylist: pick(raw, 'hijab_stylist','hijab stylist','Hijab Stylist','hijab'),
+      hair_stylist:  pick(raw, 'hair_stylist','hair stylist','Hair Stylist','hair'),
+    };
+  }
+
+  /* ── FETCH DATA ── */
+  async function loadData() {
+    document.getElementById('loadingBar').style.display = 'block';
+    try {
+      const res  = await fetch(GAS_URL + '?action=getAll');
+      const data = await res.json();
+      if (data.success) {
+        allBookings = (data.bookings || []).map(normalizeBooking);
+      }
+    } catch(e) {
+      console.warn('Gagal fetch data:', e);
+    } finally {
+      document.getElementById('loadingBar').style.display = 'none';
+      renderCalendar();
+    }
+  }
+
+  /* ── GROUP BY DATE ── */
+  function bookingsByDate() {
+    const map = {};
+    allBookings.forEach(b => {
+      const d = parseDate(b.tanggal);
+      if (!d) return;
+      const k = dateKey(d);
+      if (!map[k]) map[k] = [];
+      map[k].push(b);
+    });
+    return map;
+  }
+
+  /* ── RENDER CALENDAR ── */
+  function renderCalendar() {
+    const label = document.getElementById('monthLabel');
+    const grid  = document.getElementById('calGrid');
+
+    const monthNames = ['Januari','Februari','Maret','April','Mei','Juni',
+                        'Juli','Agustus','September','Oktober','November','Desember'];
+    label.textContent = monthNames[currentMonth] + ' ' + currentYear;
+
+    const byDate = bookingsByDate();
+
+    // First day of month (0=Sun)
+    const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+    // Last date of month
+    const lastDate = new Date(currentYear, currentMonth + 1, 0).getDate();
+    // Last date of prev month
+    const prevLastDate = new Date(currentYear, currentMonth, 0).getDate();
+
+    const todayKey = dateKey(today);
+    const cells = [];
+
+    // Prev month filler
+    for (let i = firstDay - 1; i >= 0; i--) {
+      cells.push({ date: prevLastDate - i, month: 'prev', key: null });
+    }
+    // Current month
+    for (let d = 1; d <= lastDate; d++) {
+      const k = currentYear + '-'
+        + String(currentMonth+1).padStart(2,'0') + '-'
+        + String(d).padStart(2,'0');
+      cells.push({ date: d, month: 'cur', key: k, dow: new Date(currentYear, currentMonth, d).getDay() });
+    }
+    // Next month filler (fill to complete last row)
+    let nextDay = 1;
+    while (cells.length % 7 !== 0) {
+      cells.push({ date: nextDay++, month: 'next', key: null });
+    }
+
+    grid.innerHTML = cells.map(cell => {
+      if (cell.month !== 'cur') {
+        return `<div class="cal-cell other-month"><span class="cal-date">${cell.date}</span></div>`;
+      }
+
+      const bookings = byDate[cell.key] || [];
+      const isToday  = cell.key === todayKey;
+      const hasBk    = bookings.length > 0;
+      const isSun    = cell.dow === 0;
+      const isSat    = cell.dow === 6;
+
+      let classes = 'cal-cell';
+      if (isToday)  classes += ' today';
+      if (hasBk)    classes += ' has-booking';
+      if (isSun)    classes += ' is-sun';
+      if (isSat)    classes += ' is-sat';
+
+      // Chips: show max 2, then "+N lagi"
+      const MAX_CHIPS = 2;
+      let chipsHtml = '';
+      if (hasBk) {
+        const shown = bookings.slice(0, MAX_CHIPS);
+        const rest  = bookings.length - MAX_CHIPS;
+        chipsHtml = '<div class="cal-dots">'
+          + shown.map(b => {
+              const jam = fmtTime(b.jam_selesai);
+              const label = jam ? jam + ' · ' + (b.paket||'').split('|')[0].split('–')[0].trim().slice(0,14) : (b.paket||'').split('|')[0].split('–')[0].trim().slice(0,16);
+              return `<div class="cal-chip">${label || 'Booking'}</div>`;
+            }).join('')
+          + (rest > 0 ? `<div class="cal-chip more">+${rest} lagi</div>` : '')
+          + '</div>';
+      }
+
+      const onclick = hasBk ? `onclick="openDetail('${cell.key}')"` : '';
+      return `<div class="${classes}" ${onclick}>
+        <div class="cal-date">${cell.date}</div>
+        ${chipsHtml}
+      </div>`;
+    }).join('');
+  }
+
+  /* ── OPEN DETAIL ── */
+  function openDetail(key) {
+    const byDate = bookingsByDate();
+    const bookings = byDate[key] || [];
+    if (bookings.length === 0) return;
+
+    // Format tanggal panjang
+    const [yyyy, mm, dd] = key.split('-');
+    const d = new Date(parseInt(yyyy), parseInt(mm)-1, parseInt(dd));
+    const hariNames = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+    const bulanNames = ['Januari','Februari','Maret','April','Mei','Juni',
+                        'Juli','Agustus','September','Oktober','November','Desember'];
+    const labelPanjang = hariNames[d.getDay()] + ', ' + parseInt(dd) + ' ' + bulanNames[d.getMonth()] + ' ' + yyyy;
+
+    document.getElementById('detailDateLabel').textContent = labelPanjang;
+    document.getElementById('detailCount').textContent = bookings.length + ' booking';
+
+    const body = document.getElementById('detailBody');
+    body.innerHTML = bookings.map((b, idx) => buildBookingCard(b, idx)).join('');
+
+    document.getElementById('detailOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function buildBookingCard(b, idx) {
+    const jam   = fmtTime(b.jam_selesai);
+    const lokasi = b.lokasi || null;
+
+    // Paket list
+    const paketList = (b.paket || '').split('|').map(s => s.trim()).filter(Boolean);
+    const paketHtml = paketList.length
+      ? `<div class="tag-list">${paketList.map(p =>
+          `<span class="tag tag-pink">${p.split('–')[0].trim()}</span>`
+        ).join('')}</div>`
+      : `<span class="val muted">Tidak ada data paket</span>`;
+
+    // Addon list
+    const addonList = (b.addon || '').split('|').map(s => s.trim().split('–')[0].trim()).filter(s => s && s.toLowerCase() !== 'tidak ada');
+    const addonHtml = addonList.length
+      ? `<div class="tag-list">${addonList.map(a => `<span class="tag tag-gray">${a}</span>`).join('')}</div>`
+      : null;
+
+    // Tim
+    const muaList   = [b.mua_bertugas, b.mua_bertugas_2].filter(Boolean);
+    const hijab     = b.hijab_stylist || null;
+    const hair      = b.hair_stylist  || null;
+
+    const muaHtml = muaList.length
+      ? muaList.map(m => `<span class="tag tag-pink"><i class="ti ti-user" style="font-size:11px;"></i>${m}</span>`).join('')
+      : null;
+    const hijabHtml = hijab ? `<span class="tag tag-green"><i class="ti ti-scissors" style="font-size:11px;"></i>${hijab}</span>` : null;
+    const hairHtml  = hair  ? `<span class="tag tag-blue"><i class="ti ti-cut" style="font-size:11px;"></i>${hair}</span>`  : null;
+
+    const timTags = [muaHtml, hijabHtml, hairHtml].filter(Boolean).join('');
+
+    return `<div class="booking-card">
+      <div class="booking-card-head">
+        <span class="jam">
+          <i class="ti ti-clock"></i>
+          ${jam ? 'Selesai ' + jam : '—'}
+        </span>
+        ${lokasi ? `<span class="lokasi-short"><i class="ti ti-map-pin" style="font-size:11px;margin-right:2px;"></i>${lokasi}</span>` : ''}
+      </div>
+      <div class="booking-card-body">
+
+        <div class="detail-row">
+          <i class="ti ti-map-pin"></i>
+          <span class="val">${lokasi || '<em class="muted">Lokasi tidak tersedia</em>'}</span>
+        </div>
+
+        <div>
+          <p class="section-mini-label">Paket</p>
+          ${paketHtml}
+        </div>
+
+        ${addonHtml ? `<div>
+          <p class="section-mini-label">Add On</p>
+          ${addonHtml}
+        </div>` : ''}
+
+        ${timTags ? `<div>
+          <p class="section-mini-label">Tim</p>
+          <div class="tag-list">${timTags}</div>
+        </div>` : ''}
+
+      </div>
+    </div>`;
+  }
+
+  /* ── CLOSE DETAIL ── */
+  function closeDetail() {
+    document.getElementById('detailOverlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  // Tap overlay to close
+  document.getElementById('detailOverlay').addEventListener('click', function(e) {
+    if (e.target === this) closeDetail();
+  });
+
+  /* ── MONTH NAV ── */
+  function changeMonth(delta) {
+    currentMonth += delta;
+    if (currentMonth > 11) { currentMonth = 0;  currentYear++; }
+    if (currentMonth < 0)  { currentMonth = 11; currentYear--; }
+    renderCalendar();
+    closeDetail();
+  }
+
+  function goToday() {
+    currentYear  = today.getFullYear();
+    currentMonth = today.getMonth();
+    renderCalendar();
+    closeDetail();
+  }
+
+  /* ── START ── */
+  loadData();
+</script>
+</body>
+</html>
