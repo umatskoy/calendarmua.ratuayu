@@ -162,11 +162,14 @@
       border: 0.5px solid var(--border);
       border-radius: 8px;
       min-height: 80px;
+      max-height: 140px;
       padding: 6px 7px;
       cursor: default;
       transition: border-color 0.15s, box-shadow 0.15s;
       position: relative;
-      overflow: hidden;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
     }
     .cal-cell.other-month { background: transparent; border-color: transparent; }
     .cal-cell.other-month .cal-date { color: #ccc; }
