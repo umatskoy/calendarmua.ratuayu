@@ -287,21 +287,19 @@
     }
     .btn-close-detail:hover { background: var(--pink-light); color: var(--pink); }
 
-  .detail-body {
+      .detail-body {
       max-height: calc(2.5 * 280px);
       padding: 12px 20px 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    overflow-y: auto;
+      display: block;
+      overflow-y: auto;
       overflow-x: hidden;
     }
 
-    .booking-card {
+  .booking-card {
       border: 0.5px solid var(--border);
       border-radius: 10px;
-      overflow-y: auto;
-      overflow-x: hidden;
+      overflow: hidden;
+      margin-bottom: 10px;
     }
     .booking-card-head {
       background: var(--pink-light);
