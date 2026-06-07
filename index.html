@@ -591,6 +591,7 @@
       mua_bertugas_5:pick(raw, 'mua_bertugas_5','mua bertugas 5','MUA Bertugas 5','mua5'),
       hijab_stylist: pick(raw, 'hijab_stylist','hijab stylist','Hijab Stylist','hijab'),
       hair_stylist:  pick(raw, 'hair_stylist','hair stylist','Hair Stylist','hair'),
+      notes:         pick(raw, 'notes','Notes','catatan','Catatan','note'),
     };
   }
 
@@ -838,6 +839,14 @@
         ${timTags ? `<div>
           <p class="section-mini-label">Tim</p>
           <div class="tag-list">${timTags}</div>
+        </div>` : ''}
+
+      ${b.notes ? `<div>
+          <p class="section-mini-label">Catatan</p>
+          <div class="detail-row">
+            <i class="ti ti-notes"></i>
+            <span class="val">${b.notes}</span>
+          </div>
         </div>` : ''}
 
       </div>
