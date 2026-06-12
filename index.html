@@ -707,6 +707,14 @@
 
       const bookings = byDate[cell.key] || [];
       const blokir   = byBlokir[cell.key] || null;
+      // Setelah: const blokir = byBlokir[cell.key] || null;
+// Tambahkan logika ini:
+
+const needsTeam = hasBk && bookings.every(b => {
+  const tim = [b.mua_bertugas, b.mua_bertugas_2, b.mua_bertugas_3, b.mua_bertugas_4, b.mua_bertugas_5, b.hijab_stylist, b.hair_stylist]
+    .filter(Boolean);
+  return tim.length === 0;
+});
       const isToday  = cell.key === todayKey;
       const hasBk    = bookings.length > 0;
       const isSun    = cell.dow === 0;
@@ -719,7 +727,9 @@
       if (isSat)    classes += ' is-sat';
 
       // Blokir: background warna + label strip di bawah tanggal
-      let blokirStyle = '';
+      let blokirStyle = needsTeam
+  ? `style="background:rgba(251,146,60,0.15);border-color:rgba(251,146,60,0.5);"`
+  : '';
       let blokirHtml  = '';
       if (blokir) {
         const warna = blokir.warna || '#cccccc';
