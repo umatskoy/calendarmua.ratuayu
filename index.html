@@ -732,19 +732,19 @@
       const MAX_CHIPS = 5;
       let chipsHtml = '';
       if (hasBk) {
-        const shown = bookings.slice(0, MAX_CHIPS);
-        const rest  = bookings.length - MAX_CHIPS;
-        chipsHtml = '<div class="cal-dots">'
-          + shown.map(b => {
-              const jam = fmtTime(b.jam_selesai);
-              const tim = [b.mua_bertugas, b.mua_bertugas_2, b.mua_bertugas_3, b.mua_bertugas_4, b.mua_bertugas_5, b.hijab_stylist, b.hair_stylist]
-                .filter(Boolean);
-              const timLabel = tim.length > 0 ? tim.join(', ') : 'Booking';
-              const chipLabel = jam ? jam : (timLabel !== 'Booking' ? timLabel : '—');
-              return `<div class="cal-chip">${chipLabel}</div>`;
-            }).join('')
-          + (rest > 0 ? `<div class="cal-chip more">+${rest} lagi</div>` : '')
-          + '</div>';
+       const shown = bookings.slice(0, MAX_CHIPS);
+const rest  = bookings.length - MAX_CHIPS;
+chipsHtml = '<div class="cal-dots">'
+  + shown.map(b => {
+      const jam = fmtTime(b.jam_selesai);
+      const tim = [b.mua_bertugas, b.mua_bertugas_2, b.mua_bertugas_3, b.mua_bertugas_4, b.mua_bertugas_5, b.hijab_stylist, b.hair_stylist]
+        .filter(Boolean);
+      const jamLabel = jam || '—';
+      const timLabel = tim.length > 0 ? ' · ' + tim.join('+') : '';
+      return `<div class="cal-chip">${jamLabel}${timLabel}</div>`;
+    }).join('')
+  + (rest > 0 ? `<div class="cal-chip more">+${rest} lagi</div>` : '')
+  + '</div>';
       }
 
       const onclick = hasBk ? `onclick="openDetail('${cell.key}')"` : '';
